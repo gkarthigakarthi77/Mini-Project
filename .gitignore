@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.so
+env/
+venv/
+ENV/
+.venv
+instance/
+reports/*.pdf
+.env
+.vscode/
+.idea/
+*.db
+*.sqlite
+.coverage
+.pytest_cache/

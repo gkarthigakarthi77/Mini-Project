@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - SecurePass Analyzer{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="gradient-text mb-4"><i class="fas fa-user-shield me-2"></i>Admin Dashboard</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="glass-card p-3 text-center">
+                <div class="stat-number">{{ total_users }}</div>
+                <div class="text-secondary">Total Users</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-3 text-center">
+                <div class="stat-number">{{ total_passwords }}</div>
+                <div class="text-secondary">Password Analyses</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-3 text-center">
+                <div class="stat-number">{{ total_logs }}</div>
+                <div class="text-secondary">Log Entries</div>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="glass-card p-3">
+                <h5>User Growth (Last 30 Days)</h5>
+                <canvas id="userGrowthChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card p-3">
+                <h5>Daily Password Analyses</h5>
+                <canvas id="dailyPasswordsChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="glass-card p-3">
+                <h5>Recent Users</h5>
+                <ul class="list-group list-group-flush bg-transparent">
+                    {% for user in recent_users %}
+                    <li class="list-group-item bg-transparent text-light d-flex justify-content-between">
+                        {{ user.username }} <span class="text-secondary">{{ user.created_at.strftime('%Y-%m-%d') }}</span>
+                    </li>
+                    {% else %}
+                    <li class="list-group-item bg-transparent text-light">No users yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card p-3">
+                <h5>Recent Logs</h5>
+                <ul class="list-group list-group-flush bg-transparent">
+                    {% for log in recent_logs %}
+                    <li class="list-group-item bg-transparent text-light small">
+                        <strong>{{ log.action }}</strong> – {{ log.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                        {% if log.user %}({{ log.user.username }}){% endif %}
+                    </li>
+                    {% else %}
+                    <li class="list-group-item bg-transparent text-light">No logs yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/admin/stats')
+        .then(res => res.json())
+        .then(data => {
+            const ctx1 = document.getElementById('userGrowthChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: data.user_growth.labels,
+                    datasets: [{ label: 'Total Users', data: data.user_growth.data, borderColor: '#4a8cf7', fill: false, tension: 0.3 }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#e8edf5' } } },
+                    scales: { x: { ticks: { color: '#a0b4d0', maxTicksLimit: 10 } },
+                              y: { ticks: { color: '#a0b4d0' } } }
+                }
+            });
+            const ctx2 = document.getElementById('dailyPasswordsChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: data.daily_passwords.labels,
+                    datasets: [{ label: 'Analyses per Day', data: data.daily_passwords.data, backgroundColor: '#6c5ce7', borderColor: '#4a8cf7', borderWidth: 1 }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { labels: { color: '#e8edf5' } } },
+                    scales: { x: { ticks: { color: '#a0b4d0', maxTicksLimit: 10 } },
+                              y: { ticks: { color: '#a0b4d0' } } }
+                }
+            });
+        });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Analyzer - SecurePass Analyzer{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="gradient-text mb-4"><i class="fas fa-lock me-2"></i>Password Strength Analyzer</h2>
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="glass-card p-4 fade-in">
+                <form id="analyzerForm">
+                    <div class="mb-3">
+                        <label for="passwordInput" class="form-label">Enter Password to Analyze</label>
+                        <input type="text" id="passwordInput" class="form-control form-control-lg bg-transparent text-light" placeholder="Type or paste a password..." autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Strength Meter</label>
+                        <div class="strength-meter">
+                            <div id="strengthMeterBar" class="meter-bar" style="width: 0%;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span id="strengthLabel" class="text-secondary">Very Weak</span>
+                            <span id="entropyDisplay" class="text-secondary">0 bits</span>
+                            <span id="crackTimeDisplay" class="text-secondary">Instant</span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-gradient w-100" id="analyzeBtn">Analyze</button>
+                </form>
+            </div>
+            <div id="analysisResults" class="glass-card p-4 mt-4 d-none">
+                <h5>Analysis Results</h5>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.getElementById('analyzerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const password = document.getElementById('passwordInput').value;
+    if (!password) return;
+    const btn = document.getElementById('analyzeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Analyzing...';
+    fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = 'Analyze';
+        if (data.error) {
+            alert('Error: ' + data.error);
+            return;
+        }
+        const score = data.strength_score;
+        const meterBar = document.getElementById('strengthMeterBar');
+        const label = document.getElementById('strengthLabel');
+        const entropy = document.getElementById('entropyDisplay');
+        const crackTime = document.getElementById('crackTimeDisplay');
+        let level = 'very-weak';
+        let levelName = 'Very Weak';
+        if (score >= 80) { level = 'very-strong'; levelName = 'Very Strong'; }
+        else if (score >= 60) { level = 'strong'; levelName = 'Strong'; }
+        else if (score >= 40) { level = 'moderate'; levelName = 'Moderate'; }
+        else if (score >= 20) { level = 'weak'; levelName = 'Weak'; }
+        meterBar.className = 'meter-bar';
+        meterBar.classList.add(level);
+        meterBar.style.width = score + '%';
+        label.textContent = levelName;
+        entropy.textContent = data.entropy_bits.toFixed(1) + ' bits';
+        crackTime.textContent = data.estimated_crack_time_display;
+
+        const resultsDiv = document.getElementById('analysisResults');
+        resultsDiv.classList.remove('d-none');
+        const content = document.getElementById('resultContent');
+        let recs = data.recommendations || [];
+        let recHtml = recs.map(r => '<li>' + r + '</li>').join('');
+        content.innerHTML = `
+            <p><strong>Score:</strong> ${score}/100</p>
+            <p><strong>Entropy:</strong> ${data.entropy_bits.toFixed(1)} bits</p>
+            <p><strong>Crack Time:</strong> ${data.estimated_crack_time_display}</p>
+            <p><strong>Randomness:</strong> ${data.randomness ? '✅ Good' : '⚠️ Predictable'}</p>
+            <p><strong>Recommendations:</strong></p>
+            <ul>${recHtml || '<li>No specific recommendations.</li>'}</ul>
+        `;
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = 'Analyze';
+        alert('An error occurred. Please try again.');
+        console.error(err);
+    });
+});
+</script>
+{% endblock %}

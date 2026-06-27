@@ -1,0 +1,8 @@
+
+### 1.8 `wsgi.py`
+- **Location**: `SecurePassAnalyzer/wsgi.py`
+- **Paste this**:
+```python
+from app import create_app
+
+app = create_app()

@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}SecurePass Analyzer – Analyze • Improve • Secure{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-content container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4">
+                    <span class="gradient-text">Secure</span> Your<br>Digital Identity
+                </h1>
+                <p class="subtitle mb-4">
+                    Analyze password strength, generate secure passwords, and learn cybersecurity best practices.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="{{ url_for('auth.signup') }}" class="btn btn-gradient btn-lg">Get Started Free</a>
+                    <a href="{{ url_for('main.learn') }}" class="btn btn-outline-light btn-lg">Learn More</a>
+                </div>
+                <div class="mt-4">
+                    <span class="badge bg-primary bg-opacity-25 text-primary me-2">🔐 256-bit Encryption</span>
+                    <span class="badge bg-primary bg-opacity-25 text-primary me-2">🛡️ Zero-Knowledge</span>
+                    <span class="badge bg-primary bg-opacity-25 text-primary">⚡ Real-time Analysis</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="gradient-text">Why SecurePass?</h2>
+        <p class="text-secondary">Everything you need to strengthen your password security.</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="glass-card feature-card fade-in">
+                <i class="fas fa-shield-alt"></i>
+                <h5>Advanced Analysis</h5>
+                <p class="text-secondary">Entropy, crack time, and custom scoring with actionable recommendations.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card feature-card fade-in" style="animation-delay: 0.2s;">
+                <i class="fas fa-key"></i>
+                <h5>Secure Generator</h5>
+                <p class="text-secondary">Cryptographically strong passwords with customizable character sets.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card feature-card fade-in" style="animation-delay: 0.4s;">
+                <i class="fas fa-chart-line"></i>
+                <h5>Analytics Dashboard</h5>
+                <p class="text-secondary">Track your security trends with charts and historical data.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="row text-center g-4">
+        <div class="col-md-3 col-6">
+            <div class="glass-card p-3">
+                <div class="stat-number" id="statPasswords">1,284</div>
+                <div class="text-secondary">Passwords Analyzed</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="glass-card p-3">
+                <div class="stat-number">72%</div>
+                <div class="text-secondary">Average Score</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="glass-card p-3">
+                <div class="stat-number">342</div>
+                <div class="text-secondary">Strong Passwords</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="glass-card p-3">
+                <div class="stat-number">56</div>
+                <div class="text-secondary">Weak Passwords</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="gradient-text">Trusted by Security Professionals</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="glass-card testimonial-card">
+                <i class="fas fa-quote-left"></i>
+                <p class="mt-2">"SecurePass gave me clear recommendations that improved my password habits immediately."</p>
+                <div class="mt-3"><strong>Alex Rivera</strong> <span class="text-secondary">· Security Engineer</span></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card testimonial-card">
+                <i class="fas fa-quote-left"></i>
+                <p class="mt-2">"The entropy and crack time estimates are spot on. A must-have tool for any security-conscious user."</p>
+                <div class="mt-3"><strong>Jamie Chen</strong> <span class="text-secondary">· CISO</span></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card testimonial-card">
+                <i class="fas fa-quote-left"></i>
+                <p class="mt-2">"I love the generator. Being able to exclude similar characters makes it perfect for my needs."</p>
+                <div class="mt-3"><strong>Taylor Smith</strong> <span class="text-secondary">· Developer</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="gradient-text">Frequently Asked Questions</h2>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="glass-card p-4">
+                <div class="faq-item">
+                    <div class="question" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        <span>Is my password stored?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div id="faq1" class="collapse answer">
+                        No. We never store plaintext passwords. Only a hash and analysis metadata are saved.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="question" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        <span>How is entropy calculated?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div id="faq2" class="collapse answer">
+                        We use Shannon entropy and also integrate with zxcvbn for advanced estimation.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="question" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        <span>Can I use the API?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div id="faq3" class="collapse answer">
+                        Yes, we provide REST API endpoints for analyze, generate, history, and dashboard.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5 text-center">
+    <div class="glass-card p-5">
+        <h3 class="gradient-text">Ready to secure your passwords?</h3>
+        <p class="text-secondary mb-4">Join thousands of users who trust SecurePass Analyzer.</p>
+        <a href="{{ url_for('auth.signup') }}" class="btn btn-gradient btn-lg">Start Now</a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}User Management - SecurePass Analyzer{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="gradient-text mb-4"><i class="fas fa-users-cog me-2"></i>User Management</h2>
+    <div class="glass-card p-4">
+        <form method="GET" class="mb-3 d-flex">
+            <input type="text" name="search" class="form-control bg-transparent text-light me-2" placeholder="Search by username or email" value="{{ search or '' }}">
+            <button class="btn btn-gradient" type="submit"><i class="fas fa-search"></i></button>
+            {% if search %}
+            <a href="{{ url_for('admin.user_management') }}" class="btn btn-outline-secondary ms-2">Clear</a>
+            {% endif %}
+        </form>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Created</th><th>Active</th><th>Admin</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ '✅' if user.is_active else '❌' }}</td>
+                        <td>{{ '✅' if user.is_admin else '❌' }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-warning toggle-active" data-id="{{ user.id }}" data-active="{{ user.is_active|lower }}">
+                                {{ 'Deactivate' if user.is_active else 'Activate' }}
+                            </button>
+                            {% if user.id != current_user.id %}
+                            <button class="btn btn-sm btn-outline-danger delete-user" data-id="{{ user.id }}">Delete</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center">No users found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <nav>
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.user_management', page=pagination.prev_num, search=search) }}">Previous</a>
+                </li>
+                {% for p in pagination.iter_pages() %}
+                    {% if p %}
+                        <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin.user_management', page=p, search=search) }}">{{ p }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.user_management', page=pagination.next_num, search=search) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.toggle-active').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            fetch(`/admin/users/${id}/toggle`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.message) location.reload();
+                    else alert('Error: ' + data.error);
+                });
+        });
+    });
+    document.querySelectorAll('.delete-user').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!confirm('Delete this user and all their data?')) return;
+            const id = this.dataset.id;
+            fetch(`/admin/users/${id}/delete`, { method: 'DELETE' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.message) location.reload();
+                    else alert('Error: ' + data.error);
+                });
+        });
+    });
+});
+</script>
+{% endblock %}

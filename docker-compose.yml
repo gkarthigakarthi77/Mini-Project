@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_CONFIG=production
+      - SECRET_KEY=change-this-in-production
+      - DATABASE_URL=sqlite:///instance/app.db
+    volumes:
+      - ./instance:/app/instance
+      - ./reports:/app/reports

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Generator - SecurePass Analyzer{% endblock %}
+{% block content %}
+<div class="container py-4">
+    <h2 class="gradient-text mb-4"><i class="fas fa-key me-2"></i>Secure Password Generator</h2>
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="glass-card p-4 fade-in">
+                <div class="mb-3">
+                    <label class="form-label">Generated Password</label>
+                    <div class="input-group">
+                        <input type="text" id="generatedPassword" class="form-control bg-transparent text-light" readonly>
+                        <button class="btn btn-outline-secondary copy-btn" type="button" data-copy-target="generatedPassword">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn btn-gradient" type="button" id="regenerateBtn"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                </div>
+                <form id="generatorOptions">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Length</label>
+                            <input type="number" class="form-control bg-transparent text-light" value="16" min="4" max="64" id="genLength">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Character Sets</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="genUpper" checked>
+                                <label class="form-check-label" for="genUpper">Uppercase</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="genLower" checked>
+                                <label class="form-check-label" for="genLower">Lowercase</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="genNumbers" checked>
+                                <label class="form-check-label" for="genNumbers">Numbers</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="genSymbols" checked>
+                                <label class="form-check-label" for="genSymbols">Symbols</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="genExcludeSimilar">
+                            <label class="form-check-label" for="genExcludeSimilar">Exclude similar characters (il1Lo0O)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="genExcludeAmbiguous">
+                            <label class="form-check-label" for="genExcludeAmbiguous">Exclude ambiguous characters ({}[]()/\'"`~,;:.<>)</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-gradient mt-3 w-100">Generate New Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function generatePassword() {
+    const length = parseInt(document.getElementById('genLength').value) || 16;
+    const useUpper = document.getElementById('genUpper').checked;
+    const useLower = document.getElementById('genLower').checked;
+    const useNumbers = document.getElementById('genNumbers').checked;
+    const useSymbols = document.getElementById('genSymbols').checked;
+    const excludeSimilar = document.getElementById('genExcludeSimilar').checked;
+    const excludeAmbiguous = document.getElementById('genExcludeAmbiguous').checked;
+
+    fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            length: length,
+            use_upper: useUpper,
+            use_lower: useLower,
+            use_numbers: useNumbers,
+            use_symbols: useSymbols,
+            exclude_similar: excludeSimilar,
+            exclude_ambiguous: excludeAmbiguous
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) alert('Error: ' + data.error);
+        else document.getElementById('generatedPassword').value = data.password;
+    })
+    .catch(err => { alert('Generation failed.'); console.error(err); });
+}
+document.addEventListener('DOMContentLoaded', function() {
+    generatePassword();
+    document.getElementById('regenerateBtn').addEventListener('click', generatePassword);
+    document.getElementById('generatorOptions').addEventListener('submit', function(e) {
+        e.preventDefault();
+        generatePassword();
+    });
+});
+</script>
+{% endblock %}
