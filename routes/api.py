@@ -6,9 +6,17 @@ from services.report_generator import ReportGenerator
 from utils.logger import log_action
 from datetime import datetime, timedelta
 import logging
+from models import PasswordHistory  # ✅ Import added
+from extensions import csrf          # ✅ CSRF import
 
 api_bp = Blueprint('api', __name__)
 logger = logging.getLogger(__name__)
+
+# ✅ Disable CSRF for all API routes (they use JSON)
+@api_bp.before_request
+def exempt_csrf():
+    if request.method in ['POST', 'PUT', 'DELETE']:
+        csrf.exempt(api_bp)
 
 
 @api_bp.route('/analyze', methods=['POST'])

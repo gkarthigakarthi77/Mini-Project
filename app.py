@@ -13,13 +13,16 @@ def create_app(config_name=None):
     app = Flask(__name__)
     app.config.from_object(config_dict[config_name])
 
+    # Ensure secret key is set
     if not app.config['SECRET_KEY'] or app.config['SECRET_KEY'] == 'dev-key-change-in-production':
         app.logger.warning('SECRET_KEY not set to a secure value!')
 
+    # Initialize extensions
     db.init_app(app)
     login_manager.init_app(app)
     csrf.init_app(app)
 
+    # User loader
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
@@ -27,6 +30,7 @@ def create_app(config_name=None):
     login_manager.login_view = 'auth.login'
     login_manager.login_message_category = 'info'
 
+    # Register blueprints
     from routes.auth import auth_bp
     from routes.main import main_bp
     from routes.dashboard import dashboard_bp
@@ -39,8 +43,13 @@ def create_app(config_name=None):
     app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(api_bp, url_prefix='/api')
 
+    # ✅ Disable CSRF protection for API blueprint (JSON endpoints)
+    csrf.exempt(api_bp)
+
+    # Create tables
     with app.app_context():
         db.create_all()
+        # Create admin user if none exists (for demo)
         if not User.query.filter_by(is_admin=True).first():
             from werkzeug.security import generate_password_hash
             admin = User(
